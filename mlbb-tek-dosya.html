@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#05080f" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="MLBB Analiz" />
+  <title>MLBB Analiz</title>
+  
+  
+  
+  <style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#05080f;color:#e8edf5;font-family:system-ui,-apple-system,sans-serif;-webkit-tap-highlight-color:transparent}
+#app{max-width:430px;margin:0 auto;min-height:100vh;position:relative}
+
+.screen{display:none;min-height:100vh;padding-bottom:24px}
+.screen.active{display:block}
+
+/* HOME */
+#home{position:relative;overflow:hidden}
+.bg-glow{
+  position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(50,90,220,.25), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 90%, rgba(180,120,20,.08), transparent 50%);
+}
+.home-head{padding:28px 20px 10px;position:relative}
+.logo-row{display:flex;align-items:center;gap:14px}
+.logo-circle{
+  width:52px;height:52px;border-radius:50%;
+  background:linear-gradient(145deg,#3a6bff,#1a3aaa);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:1.1rem;color:#fff;
+  box-shadow:0 4px 20px rgba(50,100,255,.4);
+}
+.app-name{font-size:1.3rem;font-weight:700}
+.app-sub{font-size:.78rem;color:#7a8499;margin-top:2px}
+
+.icons{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:22px 8px;padding:32px 16px 20px;position:relative;
+}
+.icon-btn{
+  background:none;border:none;color:#c8d0e0;
+  display:flex;flex-direction:column;align-items:center;gap:9px;
+  cursor:pointer;
+}
+.circle{
+  width:72px;height:72px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.85rem;
+  box-shadow:0 8px 24px rgba(0,0,0,.45);
+  transition:transform .12s;
+}
+.icon-btn:active .circle{transform:scale(.9)}
+.c1{background:linear-gradient(145deg,#2b4db8,#1a2f70)}
+.c2{background:linear-gradient(145deg,#3d6b1e,#2a4a14)}
+.c3{background:linear-gradient(145deg,#8a4a18,#5c3010)}
+.c4{background:linear-gradient(145deg,#5a2280,#3a1558)}
+.c5{background:linear-gradient(145deg,#1a6a7a,#104850)}
+.c6{background:linear-gradient(145deg,#7a2048,#4a1430)}
+.icon-btn span{font-size:.78rem;font-weight:500;color:#9aa3b5}
+.home-note{text-align:center;color:#5a6478;font-size:.72rem;margin-top:20px;position:relative}
+
+/* TOPBAR */
+.topbar{
+  display:flex;align-items:center;gap:12px;
+  padding:16px 14px 10px;position:sticky;top:0;
+  background:#05080f;z-index:20;
+}
+.topbar h1{font-size:1.15rem;font-weight:650}
+.back{
+  width:36px;height:36px;border-radius:50%;
+  background:#121a28;border:1px solid #1e2a3d;
+  color:#fff;font-size:1.3rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.sub{color:#7a8499;font-size:.82rem;padding:0 14px 10px}
+
+/* FORMS */
+.pad{padding:0 14px}
+label{display:block;font-size:.78rem;color:#7a8499;margin:12px 0 5px;font-weight:500}
+select,input{
+  width:100%;background:#121a28;border:1px solid #1e2a3d;
+  color:#e8edf5;padding:12px 14px;border-radius:12px;
+  font-size:.95rem;outline:none;appearance:none;
+}
+select:focus,input:focus{border-color:#3a6bff}
+.search{
+  display:block;width:calc(100% - 28px);margin:0 14px 12px;
+  background:#121a28;border:1px solid #1e2a3d;color:#e8edf5;
+  padding:11px 14px;border-radius:12px;font-size:.92rem;
+}
+.btn{
+  width:100%;margin:16px 0;
+  background:linear-gradient(135deg,#3a6bff,#2448cc);
+  color:#fff;border:none;padding:14px;border-radius:14px;
+  font-weight:650;font-size:.95rem;cursor:pointer;
+  box-shadow:0 4px 18px rgba(50,100,255,.3);
+}
+.btn:active{opacity:.9;transform:scale(.98)}
+
+/* PICKER */
+.pick{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:8px;
+  max-height:220px;overflow-y:auto;
+  background:#0c121e;border:1px solid #1e2a3d;border-radius:14px;padding:10px;
+}
+.pick-item{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:7px 2px;border-radius:10px;cursor:pointer;
+  border:2px solid transparent;font-size:.62rem;color:#7a8499;text-align:center;
+}
+.pick-item img{width:38px;height:38px;border-radius:8px;object-fit:cover}
+.pick-item.on{border-color:#3a6bff;background:rgba(58,107,255,.12);color:#e8edf5}
+
+/* PANEL / LIST */
+.panel{
+  background:#0c121e;border:1px solid #1e2a3d;border-radius:14px;padding:14px;margin-top:4px;
+}
+.empty{color:#5a6478;text-align:center;padding:22px 8px;font-size:.88rem;line-height:1.5}
+.load{text-align:center;padding:36px;color:#5a6478;font-size:.9rem}
+
+.list{padding:0 14px;display:flex;flex-direction:column;gap:10px}
+.card{
+  background:#0c121e;border:1px solid #1e2a3d;border-radius:14px;
+  padding:12px;display:flex;gap:12px;
+}
+.card img{width:46px;height:46px;border-radius:10px;object-fit:cover;flex-shrink:0}
+.card h3{font-size:.9rem;margin-bottom:2px}
+.card .t{font-size:.7rem;color:#e8b923;margin-bottom:3px}
+.card .d{font-size:.76rem;color:#7a8499;line-height:1.35}
+
+/* HERO GRID */
+.grid3{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
+  padding:0 14px;
+}
+.hcard{
+  background:#0c121e;border:1px solid #1e2a3d;border-radius:14px;
+  padding:10px 4px;text-align:center;
+}
+.hcard img{width:50px;height:50px;border-radius:50%;object-fit:cover;margin-bottom:5px}
+.hcard span{display:block;font-size:.72rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* META */
+table{width:100%;border-collapse:collapse;font-size:.84rem}
+th,td{padding:10px 6px;text-align:left;border-bottom:1px solid #1e2a3d}
+th{color:#5a6478;font-size:.7rem;text-transform:uppercase}
+.hc{display:flex;align-items:center;gap:8px}
+.hc img{width:30px;height:30px;border-radius:50%}
+.hi{color:#2ecc71;font-weight:650}
+.md{color:#e8b923}
+.lo{color:#e74c3c}
+
+.stat{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #1e2a3d;font-size:.86rem}
+.stat:last-child{border-bottom:none}
+.sl{color:#7a8499}
+.mu{margin-top:14px}
+.mu h4{font-size:.86rem;margin-bottom:7px}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{
+  display:flex;align-items:center;gap:5px;
+  background:#0a101a;padding:5px 9px;border-radius:9px;font-size:.74rem;
+}
+.tag img{width:24px;height:24px;border-radius:50%}
+.g{border-left:3px solid #2ecc71}
+.b{border-left:3px solid #e74c3c}
+
+</style>
+</head>
+<body>
+  <div id="app">
+
+    <!-- ========== ANA EKRAN (sadece ikonlar) ========== -->
+    <div id="home" class="screen active">
+      <div class="bg-glow"></div>
+      <header class="home-head">
+        <div class="logo-row">
+          <div class="logo-circle">ML</div>
+          <div>
+            <div class="app-name">MLBB Analiz</div>
+            <div class="app-sub">Mobile Legends Rehberi</div>
+          </div>
+        </div>
+      </header>
+
+      <div class="icons">
+        <button class="icon-btn" data-go="heroes">
+          <div class="circle c1">🦸</div>
+          <span>Kahraman</span>
+        </button>
+        <button class="icon-btn" data-go="build">
+          <div class="circle c2">🛠</div>
+          <span>Build</span>
+        </button>
+        <button class="icon-btn" data-go="items">
+          <div class="circle c3">⚔</div>
+          <span>Eşya</span>
+        </button>
+        <button class="icon-btn" data-go="emblems">
+          <div class="circle c4">🔮</div>
+          <span>Amblem</span>
+        </button>
+        <button class="icon-btn" data-go="meta">
+          <div class="circle c5">📊</div>
+          <span>Meta</span>
+        </button>
+        <button class="icon-btn" data-go="player">
+          <div class="circle c6">👤</div>
+          <span>Oyuncu</span>
+        </button>
+      </div>
+
+      <p class="home-note">İkona dokun • Canlı veri</p>
+    </div>
+
+    <!-- ========== KAHRAMANLAR ========== -->
+    <div id="heroes" class="screen">
+      <div class="topbar">
+        <button class="back" data-go="home">‹</button>
+        <h1>Kahramanlar</h1>
+      </div>
+      <input class="search" id="heroSearch" placeholder="Ara..." />
+      <div id="heroList" class="grid3"><div class="load">Yükleniyor...</div></div>
+    </div>
+
+    <!-- ========== BUILD ========== -->
+    <div id="build" class="screen">
+      <div class="topbar">
+        <button class="back" data-go="home">‹</button>
+        <h1>Build</h1>
+      </div>
+      <div class="pad">
+        <label>Kahraman</label>
+        <select id="heroSel"><option>Yükleniyor...</option></select>
+        <label>Amblem</label>
+        <select id="emblemSel"><option>Yükleniyor...</option></select>
+        <label>Eşyalar (max 6)</label>
+        <div id="itemPick" class="pick"><div class="load">Yükleniyor...</div></div>
+        <button id="calcBtn" class="btn">Analiz Et</button>
+        <div id="buildOut" class="panel"><div class="empty">Kahraman + eşya seç, Analiz Et’e bas</div></div>
+      </div>
+    </div>
+
+    <!-- ========== EŞYALAR ========== -->
+    <div id="items" class="screen">
+      <div class="topbar">
+        <button class="back" data-go="home">‹</button>
+        <h1>Eşyalar</h1>
+      </div>
+      <input class="search" id="itemSearch" placeholder="Eşya ara..." />
+      <div id="itemList" class="list"><div class="load">Yükleniyor...</div></div>
+    </div>
+
+    <!-- ========== AMBLEMLER ========== -->
+    <div id="emblems" class="screen">
+      <div class="topbar">
+        <button class="back" data-go="home">‹</button>
+        <h1>Amblemler</h1>
+      </div>
+      <div id="emblemList" class="list"><div class="load">Yükleniyor...</div></div>
+    </div>
+
+    <!-- ========== META ========== -->
+    <div id="meta" class="screen">
+      <div class="topbar">
+        <button class="back" data-go="home">‹</button>
+        <h1>Meta</h1>
+      </div>
+      <p class="sub">Son 7 gün • Tüm rank</p>
+      <div id="metaList" class="list"><div class="load">Yükleniyor...</div></div>
+    </div>
+
+    <!-- ========== OYUNCU ========== -->
+    <div id="player" class="screen">
+      <div class="topbar">
+        <button class="back" data-go="home">‹</button>
+        <h1>Oyuncu</h1>
+      </div>
+      <div class="pad">
+        <label>İsim</label>
+        <input id="pName" placeholder="Oyuncu adı" />
+        <label>Zone ID</label>
+        <input id="pZone" placeholder="1234" />
+        <button id="pBtn" class="btn">Ara</button>
+        <div id="pOut" class="panel"><div class="empty">İsim + Zone ID gir</div></div>
+      </div>
+    </div>
+
+  </div>
+  <script>
+const API = "https://arena.rone.dev/api";
+let heroes = [], items = [], emblems = [], picked = new Set();
+
+function go(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  const el = document.getElementById(id);
+  if (el) el.classList.add("active");
+  if (id === "heroes") loadHeroes();
+  if (id === "build") { loadHeroSel(); loadItemPick(); loadEmblemSel(); }
+  if (id === "items") loadItems();
+  if (id === "emblems") loadEmblems();
+  if (id === "meta") loadMeta();
+}
+
+document.querySelectorAll("[data-go]").forEach(b => {
+  b.addEventListener("click", () => go(b.getAttribute("data-go")));
+});
+
+async function api(path) {
+  try {
+    const r = await fetch(API + path);
+    if (!r.ok) throw 0;
+    const j = await r.json();
+    return j.data || j;
+  } catch (e) {
+    console.error(path, e);
+    return null;
+  }
+}
+
+/* HEROES */
+async function loadHeroes() {
+  const box = document.getElementById("heroList");
+  if (heroes.length) { drawHeroes(heroes); return; }
+  box.innerHTML = `<div class="load">Yükleniyor...</div>`;
+  const d = await api("/heroes?size=150");
+  if (!d?.records) { box.innerHTML = `<div class="load">Yüklenemedi<br>İnternet / API kontrol et</div>`; return; }
+  heroes = d.records.map(r => {
+    const h = r.data?.hero?.data || {};
+    return { id: r.data?.hero_id, name: h.name || "?", head: h.head || "", rel: r.data?.relation || {} };
+  }).filter(h => h.name !== "?").sort((a,b) => a.name.localeCompare(b.name));
+  drawHeroes(heroes);
+  document.getElementById("heroSearch").oninput = e => {
+    const q = e.target.value.toLowerCase();
+    drawHeroes(heroes.filter(h => h.name.toLowerCase().includes(q)));
+  };
+}
+function drawHeroes(list) {
+  const box = document.getElementById("heroList");
+  if (!list.length) { box.innerHTML = `<div class="load">Yok</div>`; return; }
+  box.innerHTML = list.map(h => `
+    <div class="hcard">
+      <img src="${h.head}" onerror="this.src='icon-192.png'" loading="lazy" />
+      <span>${h.name}</span>
+    </div>`).join("");
+}
+
+/* BUILD */
+async function loadHeroSel() {
+  const s = document.getElementById("heroSel");
+  if (!heroes.length) {
+    const d = await api("/heroes?size=150");
+    if (d?.records) {
+      heroes = d.records.map(r => {
+        const h = r.data?.hero?.data || {};
+        return { id: r.data?.hero_id, name: h.name || "?", head: h.head || "", rel: r.data?.relation || {} };
+      }).filter(h => h.name !== "?").sort((a,b) => a.name.localeCompare(b.name));
+    }
+  }
+  if (!heroes.length) { s.innerHTML = `<option>Yüklenemedi</option>`; return; }
+  s.innerHTML = `<option value="">Seç...</option>` + heroes.map(h => `<option value="${h.id}">${h.name}</option>`).join("");
+}
+
+async function loadItemPick() {
+  const box = document.getElementById("itemPick");
+  if (items.length) { drawPick(); return; }
+  box.innerHTML = `<div class="load" style="grid-column:1/-1">Yükleniyor...</div>`;
+  let d = await api("/academy/equipment/expanded?size=200&index=1");
+  if (!d?.records) d = await api("/academy/equipment?size=200&index=1");
+  if (!d?.records) { box.innerHTML = `<div class="load" style="grid-column:1/-1">Yüklenemedi</div>`; return; }
+  items = d.records.map(r => ({
+    id: String(r.data?.equipid || r.id),
+    name: r.data?.equipname || "Item",
+    icon: r.data?.equipicon || "",
+    tips: (r.data?.equiptips || "").replace(/<br\s*\/?>/gi, "\n"),
+    type: r.data?.equiptypename || "",
+    desc: r.data?.equipskilldesc || ""
+  }));
+  drawPick();
+}
+function drawPick() {
+  const box = document.getElementById("itemPick");
+  box.innerHTML = items.map(i => `
+    <div class="pick-item ${picked.has(i.id)?"on":""}" data-id="${i.id}">
+      <img src="${i.icon}" loading="lazy" onerror="this.style.opacity=.3" />
+      <span>${i.name.length>9?i.name.slice(0,8)+"…":i.name}</span>
+    </div>`).join("");
+  box.querySelectorAll(".pick-item").forEach(el => {
+    el.onclick = () => {
+      const id = el.dataset.id;
+      if (picked.has(id)) picked.delete(id);
+      else { if (picked.size >= 6) { alert("Max 6"); return; } picked.add(id); }
+      drawPick();
+    };
+  });
+}
+
+async function loadEmblemSel() {
+  const s = document.getElementById("emblemSel");
+  if (emblems.length) {
+    s.innerHTML = `<option value="">Seç...</option>` + emblems.map(e => `<option value="${e.id}">${e.name}</option>`).join("");
+    return;
+  }
+  const d = await api("/academy/emblems?size=80&index=1");
+  if (!d?.records) { s.innerHTML = `<option>Yüklenemedi</option>`; return; }
+  emblems = d.records.map(r => {
+    const sk = (r.data || {}).emblemskill || {};
+    return { id: String((r.data||{}).giftid || r.id), name: sk.skillname || "Amblem", desc: sk.skilldesc || sk.skilldescemblem || "" };
+  });
+  s.innerHTML = `<option value="">Seç...</option>` + emblems.map(e => `<option value="${e.id}">${e.name}</option>`).join("");
+}
+
+document.getElementById("calcBtn").onclick = () => {
+  const id = document.getElementById("heroSel").value;
+  if (!id) { alert("Kahraman seç"); return; }
+  const hero = heroes.find(h => String(h.id) === String(id));
+  if (!hero) return;
+  const sel = items.filter(i => picked.has(i.id));
+  const eid = document.getElementById("emblemSel").value;
+  const emb = emblems.find(e => e.id === eid);
+  const tips = [];
+  sel.forEach(i => (i.tips||"").split("\n").filter(Boolean).forEach(t => tips.push(t.trim())));
+  const strong = hero.rel?.strong?.target_hero_id || [];
+  const weak = hero.rel?.weak?.target_hero_id || [];
+  const find = id => heroes.find(h => String(h.id)===String(id)) || {name:"#"+id,head:""};
+
+  document.getElementById("buildOut").innerHTML = `
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px">
+      ${hero.head?`<img src="${hero.head}" style="width:46px;height:46px;border-radius:50%">`:""}
+      <div><b style="font-size:1.05rem">${hero.name}</b><div style="font-size:.78rem;color:#7a8499">${sel.length} eşya</div></div>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">
+      ${sel.map(i=>`<div style="display:flex;align-items:center;gap:4px;background:#0a101a;padding:4px 8px;border-radius:8px;font-size:.72rem"><img src="${i.icon}" style="width:20px;height:20px;border-radius:4px" onerror="this.remove()">${i.name}</div>`).join("")||"<span style='color:#5a6478;font-size:.85rem'>Eşya yok</span>"}
+    </div>
+    ${emb?`<p style="font-size:.84rem;margin-bottom:10px"><b>${emb.name}</b><br><span style="color:#7a8499">${(emb.desc||"").replace(/<[^>]+>/g," ").slice(0,110)}</span></p>`:""}
+    <h4 style="font-size:.86rem;margin-bottom:6px">Bonuslar</h4>
+    ${tips.length?tips.map(t=>`<div class="stat"><span class="sl">${t}</span></div>`).join(""):"<p style='color:#5a6478;font-size:.84rem'>Bonus verisi sınırlı</p>"}
+    <div class="mu"><h4>En İyi Eşleşmeler</h4><div class="tags">
+      ${strong.length?strong.slice(0,6).map(i=>{const h=find(i);return `<div class="tag g">${h.head?`<img src="${h.head}">`:""}${h.name}</div>`}).join(""):"<span style='color:#5a6478;font-size:.8rem'>Yok</span>"}
+    </div></div>
+    <div class="mu"><h4>En Kötü Eşleşmeler</h4><div class="tags">
+      ${weak.length?weak.slice(0,6).map(i=>{const h=find(i);return `<div class="tag b">${h.head?`<img src="${h.head}">`:""}${h.name}</div>`}).join(""):"<span style='color:#5a6478;font-size:.8rem'>Yok</span>"}
+    </div></div>`;
+};
+
+/* ITEMS */
+async function loadItems() {
+  const box = document.getElementById("itemList");
+  if (items.length) { drawItems(items); return; }
+  box.innerHTML = `<div class="load">Yükleniyor...</div>`;
+  let d = await api("/academy/equipment/expanded?size=200&index=1");
+  if (!d?.records) d = await api("/academy/equipment?size=200&index=1");
+  if (!d?.records) { box.innerHTML = `<div class="load">Yüklenemedi</div>`; return; }
+  items = d.records.map(r => ({
+    id: String(r.data?.equipid||r.id),
+    name: r.data?.equipname||"Item",
+    icon: r.data?.equipicon||"",
+    tips: (r.data?.equiptips||"").replace(/<br\s*\/?>/gi," • "),
+    type: r.data?.equiptypename||"",
+    desc: (r.data?.equipskilldesc||"").replace(/<[^>]+>/g," ").slice(0,150)
+  }));
+  drawItems(items);
+  document.getElementById("itemSearch").oninput = e => {
+    const q = e.target.value.toLowerCase();
+    drawItems(items.filter(i => i.name.toLowerCase().includes(q) || (i.type||"").toLowerCase().includes(q)));
+  };
+}
+function drawItems(list) {
+  const box = document.getElementById("itemList");
+  if (!list.length) { box.innerHTML = `<div class="load">Yok</div>`; return; }
+  box.innerHTML = list.map(i => `
+    <div class="card">
+      <img src="${i.icon}" loading="lazy" onerror="this.style.opacity=.3">
+      <div>
+        <h3>${i.name}</h3>
+        ${i.type?`<div class="t">${i.type}</div>`:""}
+        ${i.tips?`<div class="d" style="color:#e8b923">${i.tips}</div>`:""}
+        ${i.desc?`<div class="d">${i.desc}</div>`:""}
+      </div>
+    </div>`).join("");
+}
+
+/* EMBLEMS */
+async function loadEmblems() {
+  const box = document.getElementById("emblemList");
+  box.innerHTML = `<div class="load">Yükleniyor...</div>`;
+  const d = await api("/academy/emblems?size=80&index=1");
+  if (!d?.records) { box.innerHTML = `<div class="load">Yüklenemedi</div>`; return; }
+  box.innerHTML = d.records.map(r => {
+    const sk = (r.data||{}).emblemskill || {};
+    const name = sk.skillname || "Amblem";
+    const desc = (sk.skilldesc || sk.skilldescemblem || "").replace(/<[^>]+>/g," ").slice(0,170);
+    const icon = sk.skillicon || "";
+    return `<div class="card">
+      ${icon?`<img src="${icon}" loading="lazy">`:`<div style="width:46px;height:46px;border-radius:10px;background:#121a28;display:flex;align-items:center;justify-content:center">🔮</div>`}
+      <div><h3>${name}</h3><div class="d">${desc}</div></div>
+    </div>`;
+  }).join("");
+}
+
+/* META */
+async function loadMeta() {
+  const box = document.getElementById("metaList");
+  box.innerHTML = `<div class="load">Yükleniyor...</div>`;
+  const d = await api("/heroes/rank?size=25&rank=all&days=7&sort_field=win_rate");
+  if (!d?.records) { box.innerHTML = `<div class="load">Yüklenemedi</div>`; return; }
+  const rows = d.records.map((r,i) => {
+    const x = r.data || {};
+    const h = x.main_hero?.data || {};
+    const wr = ((x.main_hero_win_rate||0)*100).toFixed(1);
+    const pr = ((x.main_hero_appearance_rate||0)*100).toFixed(2);
+    const br = ((x.main_hero_ban_rate||0)*100).toFixed(1);
+    const c = wr>=52?"hi":wr>=48?"md":"lo";
+    return `<tr>
+      <td>${i+1}</td>
+      <td><div class="hc">${h.head?`<img src="${h.head}">`:""}${h.name||"?"}</div></td>
+      <td class="${c}">${wr}%</td>
+      <td>${pr}%</td>
+      <td>${br}%</td>
+    </tr>`;
+  }).join("");
+  box.innerHTML = `<table>
+    <thead><tr><th>#</th><th>Kahraman</th><th>WR</th><th>Pick</th><th>Ban</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>
+  <p style="text-align:center;color:#5a6478;font-size:.72rem;margin-top:12px">Canlı • Rone Arena API</p>`;
+}
+
+/* PLAYER */
+document.getElementById("pBtn").onclick = () => {
+  const n = document.getElementById("pName").value.trim();
+  const z = document.getElementById("pZone").value.trim();
+  const out = document.getElementById("pOut");
+  if (!n || !z) { out.innerHTML = `<div class="empty">İsim ve Zone ID gerekli</div>`; return; }
+  out.innerHTML = `<div class="empty"><b>${n}</b> (${z})<br><br>Detaylı oyuncu verisi için ileride User ID eklenecek.<br>Şu an API kısıtlı.</div>`;
+};
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+}
+
+</script>
+</body>
+</html>
